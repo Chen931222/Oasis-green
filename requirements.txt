@@ -1,0 +1,12 @@
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+gunicorn==23.0.0
+psycopg2-binary==2.9.10
+python-multipart==0.0.20
+sentry-sdk[fastapi]==2.25.1
+
+# 測試相依（僅開發環境需要）
+pytest==8.3.5
+httpx==0.28.1
+pytest-anyio==0.0.0
+anyio[trio]==4.9.0

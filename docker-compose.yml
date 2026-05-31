@@ -1,0 +1,50 @@
+version: "3.9"
+
+# ============================================================
+# Oasis 綠洲 — Docker Compose 正式環境編排
+# ============================================================
+# 啟動：docker compose up -d
+# 停止：docker compose down
+# 查看日誌：docker compose logs -f app
+# ============================================================
+
+services:
+
+  # ── PostgreSQL 資料庫 ─────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       oasis
+      POSTGRES_USER:     oasis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?請在 .env 設定 POSTGRES_PASSWORD}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oasis -d oasis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI 應用程式 ──────────────────────────────────────
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://oasis:${POSTGRES_PASSWORD}@db:5432/oasis
+      EMAIL_USER:   ${EMAIL_USER:-}
+      EMAIL_PASS:   ${EMAIL_PASS:-}
+      WORKERS:      ${WORKERS:-4}
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads:/app/www/static/uploads
+      - logs:/app/logs
+
+volumes:
+  pg-data:
+  uploads:
+  logs:

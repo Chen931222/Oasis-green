@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜智慧推薦</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="recommend">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/recommend">智慧推薦</a>
+      <a href="/co-rental">拼場</a>
+      <a href="/login">登入</a>
+      <a href="/register">註冊</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container narrow">
+    <div class="page-title">
+      <h1>✨ 智慧推薦</h1>
+      <p>告訴我們你的需求，系統會為你找到最適合的空間。</p>
+    </div>
+
+    <form id="recommend-form" class="form-card">
+      <label>
+        用途描述
+        <input id="rec-purpose" type="text" placeholder="例：錄音、開會、讀書會、拍攝…" />
+      </label>
+      <div class="form-grid">
+        <label>
+          參加人數
+          <input id="rec-people" type="number" min="1" placeholder="不限" />
+        </label>
+        <label>
+          城市偏好
+          <select id="rec-city">
+            <option value="">不限城市</option>
+          </select>
+        </label>
+      </div>
+      <label>
+        每小時預算（元）
+        <input id="rec-budget" type="number" min="0" placeholder="不限" />
+      </label>
+      <button type="submit">為我推薦</button>
+    </form>
+
+    <div id="recommend-loading" class="hidden" style="text-align:center;padding:2rem;color:var(--muted)">
+      分析中…
+    </div>
+    <div id="recommend-results" class="hidden">
+      <h2 style="margin:2rem 0 1rem;color:var(--primary-dark)">為你推薦的空間</h2>
+      <div id="recommend-list" class="card-grid two-column"></div>
+    </div>
+    <div id="recommend-empty" class="hidden" style="text-align:center;padding:3rem 0;color:var(--muted)">
+      找不到符合條件的空間，請嘗試調整條件。
+    </div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>

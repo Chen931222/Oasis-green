@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# 本機資料庫（不要上傳到 GitHub）
+*.db
+*.sqlite
+
+# 日誌
+logs/
+*.log
+
+# 環境變數
+.env
+.env.local
+
+# pytest
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.DS_Store

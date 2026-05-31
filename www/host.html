@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜上架空間</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="host">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/host">上架空間</a>
+      <a href="/user">使用者中心</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container narrow">
+    <div class="page-title">
+      <h1>上架空間</h1>
+      <p>填寫場地基本資料，展示版送出後只會顯示成功訊息。</p>
+    </div>
+    <form id="host-form" class="form-card">
+      <div class="form-grid">
+        <label>
+          空間名稱
+          <input id="host-name" type="text" required />
+        </label>
+        <label>
+          城市
+          <input id="host-city" type="text" required />
+        </label>
+        <label>
+          行政區
+          <input id="host-district" type="text" required />
+        </label>
+        <label>
+          類型
+          <select id="host-type" required>
+            <option value="工作室">工作室</option>
+            <option value="咖啡廳">咖啡廳</option>
+            <option value="藝廊">藝廊</option>
+            <option value="教室">教室</option>
+            <option value="停車場">停車場</option>
+          </select>
+        </label>
+        <label>
+          每小時價格
+          <input id="host-price" type="number" min="0" required />
+        </label>
+        <label>
+          容納人數
+          <input id="host-capacity" type="number" min="1" required />
+        </label>
+      </div>
+      <label>
+        詳細地址
+        <input id="host-address" type="text" placeholder="例如：台北市信義區信義路五段 7 號" />
+      </label>
+      <!-- GPS 座標（地圖模式用，可選填）-->
+      <div class="form-grid" style="margin-top:0">
+        <label>
+          緯度 <span style="font-size:0.8rem;color:var(--muted)">（選填，地圖模式用）</span>
+          <input id="host-lat" type="number" step="any" placeholder="例：24.1341" />
+        </label>
+        <label>
+          經度 <span style="font-size:0.8rem;color:var(--muted)">（選填，地圖模式用）</span>
+          <input id="host-lng" type="number" step="any" placeholder="例：120.6565" />
+        </label>
+      </div>
+      <label>
+        設備
+        <input id="host-equipment" type="text" placeholder="例如：投影機、白板、音響" required />
+      </label>
+      <label>
+        空間圖片（可選多張，每張限 2MB，最多 5 張）
+        <input id="host-image" type="file" accept="image/*" multiple />
+      </label>
+      <p id="host-image-error" class="form-error hidden"></p>
+      <div id="host-image-preview" class="image-preview-grid"></div>
+      <label>
+        空間介紹
+        <textarea id="host-description" rows="5" required></textarea>
+      </label>
+      <button type="submit">送出上架申請</button>
+    </form>
+    <div id="host-success" class="success-box hidden"></div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>

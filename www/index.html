@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜找空間，找人一起用</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="index">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/recommend">智慧推薦</a>
+      <a href="/co-rental">拼場</a>
+      <a href="/login">登入</a>
+      <a href="/register">註冊</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="container hero-content">
+        <p class="eyebrow">台灣首個空間拼場社群平台</p>
+        <h1>找空間，<br>找人一起用</h1>
+        <p>一個人租太貴？Oasis 讓你發起或加入拼場，分攤費用、找到夥伴，讓空間不再閒置。</p>
+        <div class="hero-cta-row">
+          <a href="/co-rental" class="hero-btn-primary">👥 瀏覽拼場</a>
+          <a href="/explore" class="hero-btn-outline">探索空間</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 怎麼運作 ──────────────────────────────────────────────────────── -->
+    <section class="how-it-works">
+      <div class="container">
+        <div class="section-heading">
+          <h2>怎麼運作？</h2>
+          <p>三個步驟，輕鬆找到空間與夥伴。</p>
+        </div>
+        <div class="steps-row">
+          <div class="step-card">
+            <div class="step-icon">🔍</div>
+            <h3>探索空間</h3>
+            <p>瀏覽工作室、咖啡廳、練團室等多種場地，用地圖或智慧推薦快速找到理想地點。</p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">👥</div>
+            <h3>發起拼場</h3>
+            <p>覺得一個人租太貴？發布拼場邀請，讓有同樣需求的人一起分攤費用。</p>
+          </div>
+          <div class="step-card">
+            <div class="step-icon">🎉</div>
+            <h3>一起入場</h3>
+            <p>拼場成立後各自完成預訂，省錢又省力，還能認識志同道合的夥伴。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 最新拼場 ──────────────────────────────────────────────────────── -->
+    <section class="section container">
+      <div class="section-heading">
+        <h2>最新拼場</h2>
+        <p>看看有誰正在找人一起用空間。</p>
+      </div>
+      <div id="home-co-rentals" class="home-corental-grid"></div>
+      <p style="text-align:center;margin-top:24px">
+        <a href="/co-rental" style="color:var(--primary);font-weight:700;font-size:0.95rem">查看全部拼場 →</a>
+      </p>
+    </section>
+
+    <!-- ── 精選空間 ──────────────────────────────────────────────────────── -->
+    <section class="section container">
+      <div class="section-heading">
+        <h2>精選空間</h2>
+        <p>平台上高評分的場地。</p>
+      </div>
+      <div id="featured-spaces" class="card-grid"></div>
+      <p style="text-align:center;margin-top:24px">
+        <a href="/explore" style="color:var(--primary);font-weight:700;font-size:0.95rem">探索更多空間 →</a>
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>

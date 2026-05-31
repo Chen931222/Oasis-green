@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜管理員中心</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="dashboard">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/dashboard">管理員中心</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container">
+    <div class="dashboard-layout">
+      <aside class="dashboard-sidebar">
+        <div class="code-legend">
+          <h3>編碼規則</h3>
+          <div class="code-legend-item">
+            <code class="entity-code">B-####</code><span>預約</span>
+          </div>
+          <div class="code-legend-item">
+            <code class="entity-code">S-####</code><span>空間</span>
+          </div>
+          <div class="code-legend-item">
+            <code class="entity-code">U-####</code><span>會員</span>
+          </div>
+          <div class="code-legend-item">
+            <code class="entity-code">C-####</code><span>聯絡訊息</span>
+          </div>
+        </div>
+      </aside>
+      <div class="dashboard-main">
+    <div class="page-title">
+      <h1>管理員中心</h1>
+      <p>登入後可以查看預約申請與聯絡訊息。</p>
+    </div>
+    <div id="admin-content">
+      <div class="admin-heading-row">
+        <h2>平台總覽</h2>
+        <button id="admin-logout-button" type="button">登出</button>
+      </div>
+      <div id="admin-stats" class="admin-stats"></div>
+      <p id="stats-updated-at" class="stats-updated-at"></p>
+
+      <div class="admin-heading-row contact-heading">
+        <h2>預約總覽</h2>
+        <input id="booking-search" type="text" placeholder="搜尋名稱、Email 或編碼 (B-…)" />
+      </div>
+      <div id="booking-list" class="booking-list"></div>
+      <div id="booking-pagination" class="pagination"></div>
+
+      <div class="admin-heading-row contact-heading">
+        <h2>空間管理</h2>
+        <input id="space-search" type="text" placeholder="搜尋空間名稱或編碼 (S-…)" />
+      </div>
+      <div id="admin-space-list" class="booking-list"></div>
+      <div id="space-pagination" class="pagination"></div>
+
+      <div class="admin-heading-row contact-heading">
+        <h2>會員管理</h2>
+        <input id="user-search" type="text" placeholder="搜尋名稱、Email 或編碼 (U-…)" />
+      </div>
+      <div id="admin-user-list" class="booking-list"></div>
+      <div id="user-pagination" class="pagination"></div>
+
+      <div class="admin-heading-row contact-heading">
+        <h2>聯絡訊息</h2>
+        <input id="contact-search" type="text" placeholder="搜尋名稱、Email 或編碼 (C-…)" />
+      </div>
+      <div id="contact-message-list" class="booking-list"></div>
+      <div id="contact-pagination" class="pagination"></div>
+
+      <div class="admin-heading-row contact-heading">
+        <h2>平台公告</h2>
+      </div>
+      <div id="announcement-compose" class="form-card"></div>
+      <div id="announcement-list" class="booking-list" style="margin-top:16px"></div>
+    </div><!-- #admin-content -->
+      </div><!-- .dashboard-main -->
+    </div><!-- .dashboard-layout -->
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>
+
+
+

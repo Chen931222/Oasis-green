@@ -1,0 +1,57 @@
+name: Tests & Lint
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 安裝相依套件
+        run: pip install -r requirements.txt
+
+      - name: 執行測試
+        env:
+          DATABASE_URL:     ""          # 強制 SQLite 模式
+          SQLITE_DB:        oasis_test.db
+          OASIS_EMAIL_USER: ""          # 不真實寄信
+          OASIS_EMAIL_PASS: ""
+          SENTRY_DSN:       ""          # 不上報 Sentry
+        run: pytest --tb=short -q
+
+      - name: 上傳測試結果（失敗時）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: "*.log"
+
+  lint:
+    name: 語法檢查
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安裝 linter
+        run: pip install pyflakes
+
+      - name: 執行 pyflakes
+        run: python -m pyflakes main.py

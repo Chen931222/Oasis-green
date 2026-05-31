@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜探索空間</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+  <!-- Leaflet.js 地圖（地圖模式用，僅在此頁載入）-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body data-page="explore">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/recommend">智慧推薦</a>
+      <a href="/co-rental">拼場</a>
+      <a href="/login">登入</a>
+      <a href="/register">註冊</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container">
+    <div class="page-title">
+      <h1>探索空間</h1>
+      <p>依照關鍵字、城市、類型與價格快速篩選合適場地。</p>
+    </div>
+    <div class="explore-layout">
+      <aside class="filter-panel">
+        <label>
+          關鍵字
+          <input id="explore-keyword" type="text" placeholder="空間名稱或地區" />
+        </label>
+        <label>
+          城市
+          <select id="city-filter">
+            <option value="">全部城市</option>
+          </select>
+        </label>
+        <label>
+          類型
+          <select id="type-filter">
+            <option value="">全部類型</option>
+            <option value="工作室">工作室</option>
+            <option value="咖啡廳">咖啡廳</option>
+            <option value="藝廊">藝廊</option>
+            <option value="教室">教室</option>
+            <option value="停車場">停車場</option>
+          </select>
+        </label>
+        <label>
+          每小時價格上限
+          <input id="price-filter" type="number" min="0" placeholder="不限" />
+        </label>
+        <!-- 智慧推薦入口 -->
+        <a href="/recommend" class="recommend-link">✨ 說出需求，讓 AI 推薦</a>
+      </aside>
+      <section>
+        <!-- 列表 / 地圖切換列 -->
+        <div class="view-toggle-bar">
+          <button id="view-list-btn" class="view-btn active" title="列表模式">
+            ☰ 列表
+          </button>
+          <button id="view-map-btn" class="view-btn" title="地圖模式">
+            🗺 地圖
+          </button>
+        </div>
+        <p id="result-count" class="result-count"></p>
+        <!-- 列表視圖 -->
+        <div id="space-list" class="card-grid two-column"></div>
+        <div id="explore-pagination" class="pagination"></div>
+        <!-- 地圖視圖（預設隱藏）-->
+        <div id="space-map" class="space-map hidden"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>

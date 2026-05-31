@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜聯絡我們</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="contact">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/recommend">智慧推薦</a>
+      <a href="/co-rental">拼場</a>
+      <a href="/login">登入</a>
+      <a href="/register">註冊</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container narrow">
+    <div class="page-title">
+      <h1>聯絡我們</h1>
+      <p>有任何合作或場地問題，都可以透過表單留下訊息。</p>
+    </div>
+    <form id="contact-form" class="form-card">
+      <label>
+        姓名
+        <input id="contact-name" type="text" required />
+      </label>
+      <label>
+        信箱
+        <input id="contact-email" type="email" required />
+      </label>
+      <label>
+        訊息內容
+        <textarea id="contact-message" rows="6" required></textarea>
+      </label>
+      <label>
+        驗證碼
+        <span style="display:flex;align-items:center;gap:10px;margin-top:4px">
+          <span id="captcha-question" style="font-weight:600;font-size:1.05rem;color:var(--primary-dark)">載入中…</span>
+          <button type="button" id="captcha-refresh" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:1.1rem;padding:0" title="換一題">↻</button>
+        </span>
+        <input id="captcha-answer" type="text" inputmode="numeric" placeholder="請輸入數字答案" autocomplete="off" required />
+      </label>
+      <input type="hidden" id="captcha-id" />
+      <input type="text" id="hp" name="hp" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button type="submit">送出訊息</button>
+    </form>
+    <div id="contact-success" class="success-box hidden"></div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+    <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>
+
+
+

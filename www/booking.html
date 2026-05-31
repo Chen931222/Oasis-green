@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜預約申請</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="booking">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+        <a href="/login">登入</a>
+        <a href="/register">註冊</a>
+        <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container narrow">
+    <div class="page-title">
+      <h1>預約申請</h1>
+      <p id="booking-space-summary">正在載入空間資料...</p>
+    </div>
+    <form id="booking-form" class="form-card">
+      <div class="form-grid">
+        <label>
+          日期
+          <input id="booking-date" type="date" required />
+        </label>
+        <label>
+          使用人數
+          <input id="booking-people" type="number" min="1" required />
+        </label>
+        <label>
+          開始時間
+          <select id="start-time" required></select>
+        </label>
+        <label>
+          結束時間
+          <select id="end-time" required></select>
+        </label>
+      </div>
+      <label>
+        活動說明
+        <textarea id="booking-purpose" rows="4" required></textarea>
+      </label>
+      <label>
+        聯絡信箱
+        <input id="booking-email" type="email" required />
+      </label>
+      <div id="availability-section" class="hidden">
+        <p class="availability-label">當日時段狀況（綠＝可預約 / 藍實＝選取中 / 藍虛＝結束點 / 紅＝已佔用）</p>
+        <div id="availability-grid" class="availability-grid"></div>
+        <p id="booking-conflict-warning" class="conflict-warning hidden"></p>
+      </div>
+      <div id="cost-preview" class="cost-preview"></div>
+      <button type="submit">送出預約申請</button>
+    </form>
+    <p id="booking-error" class="form-error hidden"></p>
+    <div id="booking-success" class="success-box hidden">預約申請已送出！我們將盡快聯繫您。</div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+    <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>
+
+
+

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: oasis-green
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false        # 在 Render Dashboard 手動填入，不寫在這裡（安全）
+      - key: PYTHON_VERSION
+        value: 3.12.0

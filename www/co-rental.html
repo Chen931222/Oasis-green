@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oasis 綠洲｜拼場</title>
+  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+</head>
+
+<body data-page="co-rental">
+  <nav class="navbar">
+    <a class="brand" href="/">Oasis 綠洲</a>
+    <div class="nav-links">
+      <a href="/">首頁</a>
+      <a href="/explore">探索空間</a>
+      <a href="/recommend">智慧推薦</a>
+      <a href="/co-rental">拼場</a>
+      <a href="/login">登入</a>
+      <a href="/register">註冊</a>
+      <a href="/contact">聯絡我們</a>
+    </div>
+  </nav>
+
+  <main class="section container">
+    <div class="page-title">
+      <h1>拼場</h1>
+      <p>找人一起合租場地，分攤費用、結交同好。</p>
+    </div>
+
+    <!-- 篩選列 + 發起按鈕 -->
+    <div class="co-rental-topbar">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <label style="margin:0;display:flex;align-items:center;gap:8px;font-weight:500">
+          城市
+          <select id="co-city-filter" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border)">
+            <option value="">全部城市</option>
+          </select>
+        </label>
+        <label style="margin:0;display:flex;align-items:center;gap:8px;font-weight:500">
+          日期
+          <input id="co-date-filter" type="date" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border)" />
+        </label>
+      </div>
+      <button id="create-co-rental-btn" class="btn-primary">＋ 發起拼場</button>
+    </div>
+
+    <div id="co-rental-list" class="co-rental-grid"></div>
+    <div id="co-rental-empty" class="hidden" style="text-align:center;padding:4rem 0;color:var(--muted)">
+      目前沒有開放中的拼場活動。<br>成為第一個發起者吧！
+    </div>
+
+    <!-- 發起拼場 Modal -->
+    <div id="co-rental-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>發起拼場</h2>
+          <button id="modal-close-btn" class="modal-close">✕</button>
+        </div>
+        <form id="co-rental-form">
+          <label>
+            選擇空間
+            <select id="cr-space-id" required>
+              <option value="">載入中…</option>
+            </select>
+          </label>
+          <div class="form-grid">
+            <label>
+              日期
+              <input id="cr-date" type="date" required />
+            </label>
+            <label>
+              開始時間
+              <input id="cr-start" type="time" required />
+            </label>
+          </div>
+          <div class="form-grid">
+            <label>
+              結束時間
+              <input id="cr-end" type="time" required />
+            </label>
+            <label>
+              總名額（含發起人）
+              <input id="cr-slots" type="number" min="2" max="10" value="2" required />
+            </label>
+          </div>
+          <label>
+            每人費用（元）
+            <input id="cr-price" type="number" min="1" placeholder="每人分攤金額" required />
+          </label>
+          <label>
+            用途說明
+            <input id="cr-purpose" type="text" placeholder="例：讀書會、錄音練習、拍攝合作" />
+          </label>
+          <p id="cr-error" class="form-error hidden"></p>
+          <button type="submit" id="cr-submit-btn">發起拼場</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">© 2026 Oasis 綠洲</footer>
+  <script src="/static/main.js?v=20260531a"></script>
+</body>
+
+</html>
