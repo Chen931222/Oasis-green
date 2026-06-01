@@ -16,7 +16,8 @@ os.environ["SQLITE_DB"]         = "oasis_test.db"   # 獨立測試 DB，不污�
 os.environ["OASIS_EMAIL_USER"]  = ""                 # 關閉真實寄信
 os.environ["OASIS_EMAIL_PASS"]  = ""
 os.environ["SENTRY_DSN"]        = ""                 # 關閉 Sentry
-os.environ["DISABLE_CAPTCHA"]   = "1"               # 跳過驗證碼（測試環境不需填）
+os.environ["DISABLE_CAPTCHA"]    = "1"               # 跳過驗證碼（測試環境不需填）
+os.environ["DISABLE_PLAN_LIMIT"] = "1"               # 跳過訂閱方案限制（測試環境）
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 

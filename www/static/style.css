@@ -491,6 +491,12 @@ textarea {
   font-size: 1.6rem;
 }
 
+.user-cr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .user-action-link {
   width: auto;
   margin-top: 0;
@@ -762,7 +768,34 @@ textarea {
   background: var(--surface);
   color: var(--muted);
   text-align: center;
+  font-size: 0.9rem;
+  line-height: 2;
 }
+.footer a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer a:hover { color: var(--primary-dark); }
+
+/* ── 服務條款 / 隱私政策頁面內容 ─────────────────────────────────────────── */
+.legal-content {
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+.legal-content h2 {
+  font-size: 1.15rem;
+  color: var(--primary-dark);
+  margin: 32px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.legal-content p, .legal-content li { color: var(--text); font-size: 0.95rem; }
+.legal-content ul { padding-left: 20px; }
+.legal-content li { margin-bottom: 6px; }
+.legal-content a { color: var(--primary); font-weight: 600; }
+.legal-content a:hover { text-decoration: underline; }
 
 /* 分頁 */
 .pagination {
@@ -1065,13 +1098,17 @@ textarea {
   height: 19px;
   padding: 0;
   border: none;
-  background: transparent;
+  background: transparent !important;  /* 覆蓋 button 預設綠色背景 */
   cursor: pointer;
   flex-shrink: 0;
+}
+.nav-hamburger:hover {
+  background: transparent !important;
 }
 
 .nav-hamburger span {
   display: block;
+  width: 100%;             /* 確保三條線撐滿按鈕寬度 */
   height: 2.5px;
   border-radius: 2px;
   background: var(--primary-dark);
@@ -1227,6 +1264,10 @@ button:disabled {
   bottom: 28px;
   right: 24px;
   width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
   height: 44px;
   min-height: 44px;
   border-radius: 50%;
@@ -1545,7 +1586,9 @@ button:disabled {
   color: #d0d0d0;
   transition: color 0.12s, transform 0.1s;
   line-height: 1;
+  font-size: 1.8rem;
 }
+.star-btn i { pointer-events: none; }
 
 /* 鍵盤 / 視覺 hover 和已選取 */
 .star-btn.hovered {
@@ -1683,6 +1726,42 @@ button:disabled {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 24px;
+}
+
+.co-rental-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cr-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+.cr-filter-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.cr-filter-input {
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+}
 }
 
 .co-rental-grid {
@@ -1878,7 +1957,7 @@ button:disabled {
   transition: box-shadow 0.2s, transform 0.2s;
 }
 .step-card:hover { box-shadow: var(--shadow); transform: translateY(-4px); }
-.step-icon { font-size: 2.6rem; margin-bottom: 14px; }
+.step-icon { font-size: 2.6rem; margin-bottom: 14px; color: var(--primary); }
 .step-card h3 { margin: 0 0 8px; font-size: 1.1rem; color: var(--primary-dark); }
 .step-card p  { color: var(--muted); font-size: 0.92rem; line-height: 1.65; margin: 0; }
 
@@ -1989,3 +2068,149 @@ button:disabled {
   .hero-btn-outline { text-align: center; }
   .steps-row { grid-template-columns: 1fr; }
 }
+
+/* ── 定價頁 ──────────────────────────────────────────────────────────────── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 760px;
+  margin: 40px auto;
+}
+.pricing-card {
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+}
+.pricing-card-featured {
+  border: 2px solid var(--primary);
+  box-shadow: var(--shadow);
+}
+.pricing-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+.free-badge { background: #f0f0ea; color: var(--muted); }
+.pro-badge  { background: var(--primary); color: #fff; }
+
+.pricing-name {
+  margin: 0;
+  font-size: 1.4rem;
+}
+.pricing-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.pricing-amount {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+}
+.pricing-period {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.pricing-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.93rem;
+  flex: 1;
+}
+.pricing-features li { line-height: 1.4; }
+.pricing-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 1rem;
+  text-align: center;
+  transition: background 0.18s, transform 0.15s;
+  text-decoration: none;
+}
+.pricing-cta-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.pricing-cta-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+.pricing-cta-outline {
+  background: transparent;
+  color: var(--primary-dark);
+  border: 2px solid var(--primary);
+}
+.pricing-cta-outline:hover { background: #e8faf3; transform: translateY(-2px); }
+.pricing-note {
+  margin: -8px 0 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── 定價頁 FAQ ──────────────────────────────────────────────────────────── */
+.pricing-faq {
+  max-width: 760px;
+  margin: 48px auto 0;
+}
+.pricing-faq h2 { margin: 0 0 24px; font-size: clamp(1.4rem, 3vw, 2rem); }
+.faq-list { display: flex; flex-direction: column; gap: 16px; }
+.faq-item {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px 22px;
+}
+.faq-item h3 { margin: 0 0 8px; font-size: 1rem; color: var(--primary-dark); }
+.faq-item p  { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.65; }
+
+/* ── 使用者中心方案徽章 ───────────────────────────────────────────────────── */
+.plan-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+.plan-badge.free { background: #f0f0ea; color: var(--muted); }
+.plan-badge.pro  { background: var(--primary); color: #fff; }
+
+.plan-info-box {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.plan-info-box h3 { margin: 0 0 4px; font-size: 1rem; }
+.plan-info-box p  { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.plan-upgrade-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  text-decoration: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  transition: background 0.18s;
+}
+.plan-upgrade-btn:hover { background: var(--primary-dark); }

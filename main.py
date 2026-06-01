@@ -340,6 +340,10 @@ class UpdateSpaceBody(BaseModel):
     lat: Optional[float] = None
     lng: Optional[float] = None
 
+class SetPlanRequest(BaseModel):
+    plan:   str = "free"
+    months: int = 1
+
 class CoRentalRequest(BaseModel):
     space_id: Optional[int] = None
     date: str = ""
@@ -612,10 +616,10 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' https://unpkg.com; "
-        "style-src 'self' 'unsafe-inline' https://unpkg.com; "
+        "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
         "img-src 'self' data: blob: https://picsum.photos https://*.picsum.photos "
         "https://*.tile.openstreetmap.org https://unpkg.com; "
-        "font-src 'self' https://unpkg.com; "
+        "font-src 'self' https://unpkg.com https://cdn.jsdelivr.net; "
         "connect-src 'self' https://*.tile.openstreetmap.org; "
         "frame-ancestors 'none'"
     )
@@ -773,7 +777,8 @@ def init_db():
             role TEXT DEFAULT 'user',
             token TEXT, token_expires_at TEXT,
             banned INTEGER DEFAULT 0,
-            email_verified INTEGER DEFAULT 1, email_verify_token TEXT
+            email_verified INTEGER DEFAULT 1, email_verify_token TEXT,
+            plan TEXT DEFAULT 'free', plan_expires_at TEXT
         )
     """)
     if not PG_URL:
@@ -783,6 +788,8 @@ def init_db():
         if "banned"             not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0")
         if "email_verified"     not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 1")
         if "email_verify_token" not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN email_verify_token TEXT")
+        if "plan"               not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'")
+        if "plan_expires_at"    not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN plan_expires_at TEXT")
 
     # ── 確保有 admin 帳號，密碼若是舊明文格式則自動升級 ─────────────────────────
     cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'admin'")
@@ -986,14 +993,23 @@ def row_to_contact(row):
 
 
 # 將使用者資料轉成前端登入狀態需要的 dict 格式，不回傳密碼。
-# row 欄位順序：id(0) name(1) email(2) password(3) role(4) token(5) token_expires_at(6) banned(7)
+# row 欄位順序：id(0) name(1) email(2) password(3) role(4) token(5)
+#              token_expires_at(6) banned(7) email_verified(8) email_verify_token(9)
+#              plan(10) plan_expires_at(11)
 def row_to_user(row):
+    raw_plan    = row[10] if len(row) > 10 and row[10] else "free"
+    plan_exp    = row[11] if len(row) > 11 else None
+    # 若 Pro 方案已過期，自動降回 free
+    if raw_plan == "pro" and plan_exp and plan_exp < datetime.now().isoformat():
+        raw_plan = "free"
     return {
-        "id": row[0],
-        "name": row[1],
-        "email": row[2],
-        "role": row[4],
-        "banned": bool(row[7]) if len(row) > 7 else False,
+        "id":              row[0],
+        "name":            row[1],
+        "email":           row[2],
+        "role":            row[4],
+        "banned":          bool(row[7]) if len(row) > 7 else False,
+        "plan":            raw_plan,
+        "plan_expires_at": plan_exp,
     }
 
 
@@ -1057,6 +1073,74 @@ def host_page():
 @app.get("/contact")
 def contact_page():
     return FileResponse("www/contact.html")
+
+
+# 顯示定價頁。
+@app.get("/pricing")
+def pricing_page():
+    return FileResponse("www/pricing.html")
+
+
+# 顯示服務條款頁。
+@app.get("/terms")
+def terms_page():
+    return FileResponse("www/terms.html")
+
+
+# 顯示隱私政策頁。
+@app.get("/privacy")
+def privacy_page():
+    return FileResponse("www/privacy.html")
+
+
+# 查詢目前登入使用者的訂閱方案。
+@app.get("/api/user/plan")
+def get_my_plan(request: Request):
+    user = get_user_from_token(request.headers.get("X-Auth-Token", ""))
+    if not user:
+        return {"ok": False, "message": "未授權"}
+    conn   = _get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM spaces WHERE owner_email = ? AND status != '已拒絕'", (user["email"],))
+    space_count = cursor.fetchone()[0]
+    conn.close()
+    return {
+        "ok": True,
+        "data": {
+            "plan":            user.get("plan", "free"),
+            "plan_expires_at": user.get("plan_expires_at"),
+            "is_pro":          user.get("plan") == "pro",
+            "space_count":     space_count,
+            "space_limit":     None if user.get("plan") == "pro" else 1,
+        },
+    }
+
+
+# 管理員手動設定使用者訂閱方案（正式上線後改由金流自動處理）。
+@app.post("/api/admin/users/{email}/set-plan")
+def admin_set_plan(email: str, body: SetPlanRequest, request: Request):
+    admin = get_user_from_token(request.headers.get("X-Auth-Token", ""))
+    if not admin or admin["role"] != "admin":
+        return {"ok": False, "message": "未授權"}
+    if body.plan not in ("free", "pro"):
+        return {"ok": False, "message": "方案只能是 free 或 pro"}
+    expires = None
+    if body.plan == "pro":
+        expires = (datetime.now() + timedelta(days=30 * max(1, body.months))).isoformat()
+    conn   = _get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    if not cursor.fetchone():
+        conn.close()
+        return {"ok": False, "message": "找不到此使用者"}
+    cursor.execute(
+        "UPDATE users SET plan = ?, plan_expires_at = ? WHERE email = ?",
+        (body.plan, expires, email),
+    )
+    conn.commit()
+    conn.close()
+    logger.info(f"[PLAN] admin={admin['email']} set {email} → {body.plan} expires={expires}")
+    return {"ok": True, "message": f"已將 {email} 設為 {body.plan} 方案"}
 
 
 # 顯示登入頁，管理員與一般使用者共用同一個入口。
@@ -1478,6 +1562,64 @@ def get_user_spaces(request: Request, email: str = ""):
     conn.close()
 
     return {"ok": True, "data": [row_to_space(row) for row in rows]}
+
+
+# 取得目前使用者場地上的拼場（場地主使用）。
+@app.get("/api/owner/co-rentals")
+def get_owner_co_rentals(request: Request):
+    user = get_user_from_token(request.headers.get("X-Auth-Token", ""))
+    if not user:
+        return {"ok": False, "message": "未授權"}
+    conn   = _get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT cr.id, cr.space_id, cr.date, cr.start_time, cr.end_time,
+               cr.total_slots, cr.filled_slots, cr.price_per_slot,
+               cr.purpose, cr.organizer_email, cr.status, cr.created_at,
+               s.name, s.city, s.type, s.image
+        FROM co_rentals cr
+        JOIN spaces s ON cr.space_id = s.id
+        WHERE s.owner_email = ? AND cr.status IN ('open', 'full')
+        ORDER BY cr.date ASC, cr.created_at DESC
+        """,
+        (user["email"],),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return {
+        "ok": True,
+        "data": [_row_to_co_rental(r, r[12] or "", r[13] or "", r[14] or "", r[15] or "") for r in rows],
+    }
+
+
+# 取得目前使用者自己發起的拼場列表。
+@app.get("/api/user/co-rentals")
+def get_user_co_rentals(request: Request):
+    user = get_user_from_token(request.headers.get("X-Auth-Token", ""))
+    if not user:
+        return {"ok": False, "message": "未授權"}
+    conn   = _get_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT cr.id, cr.space_id, cr.date, cr.start_time, cr.end_time,
+               cr.total_slots, cr.filled_slots, cr.price_per_slot,
+               cr.purpose, cr.organizer_email, cr.status, cr.created_at,
+               s.name, s.city, s.type, s.image
+        FROM co_rentals cr
+        LEFT JOIN spaces s ON cr.space_id = s.id
+        WHERE cr.organizer_email = ?
+        ORDER BY cr.date DESC, cr.created_at DESC
+        """,
+        (user["email"],),
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return {
+        "ok": True,
+        "data": [_row_to_co_rental(r, r[12] or "", r[13] or "", r[14] or "", r[15] or "") for r in rows],
+    }
 
 
 # 取得指定場地主的空間收到的預約申請。
@@ -2086,6 +2228,52 @@ async def update_space(space_id: int, body: UpdateSpaceBody, request: Request):
     return {"ok": True, "message": "空間資料已更新！", "data": row_to_space(row)}
 
 
+# 管理員查看全部拼場列表（含所有狀態）。
+@app.get("/api/admin/co-rentals")
+def admin_list_co_rentals(request: Request, page: int = 1, per_page: int = 15, search: str = ""):
+    admin = get_user_from_token(request.headers.get("X-Auth-Token", ""))
+    if not admin or admin["role"] != "admin":
+        return {"ok": False, "message": "未授權"}
+    per_page = max(1, min(per_page, 100))
+    conn   = _get_conn()
+    cursor = conn.cursor()
+    cond_parts: list = []
+    params: list = []
+    if search:
+        cond_parts.append("(s.name LIKE ? OR cr.organizer_email LIKE ? OR cr.purpose LIKE ?)")
+        like = f"%{search}%"
+        params.extend([like, like, like])
+    where = ("WHERE " + " AND ".join(cond_parts)) if cond_parts else ""
+    cursor.execute(
+        f"SELECT COUNT(*) FROM co_rentals cr LEFT JOIN spaces s ON cr.space_id = s.id {where}",
+        params,
+    )
+    total = cursor.fetchone()[0]
+    total_pages = max(1, (total + per_page - 1) // per_page)
+    page = max(1, min(page, total_pages))
+    cursor.execute(
+        f"""
+        SELECT cr.id, cr.space_id, cr.date, cr.start_time, cr.end_time,
+               cr.total_slots, cr.filled_slots, cr.price_per_slot,
+               cr.purpose, cr.organizer_email, cr.status, cr.created_at,
+               s.name, s.city, s.type, s.image
+        FROM co_rentals cr
+        LEFT JOIN spaces s ON cr.space_id = s.id
+        {where}
+        ORDER BY cr.created_at DESC
+        LIMIT ? OFFSET ?
+        """,
+        params + [per_page, (page - 1) * per_page],
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return {
+        "ok": True,
+        "data": [_row_to_co_rental(r, r[12] or "", r[13] or "", r[14] or "", r[15] or "") for r in rows],
+        "total": total, "page": page, "per_page": per_page, "total_pages": total_pages,
+    }
+
+
 # 管理員儀表板專用統計，單一 API 一次取得所有數字。
 @app.get("/api/admin/stats")
 def get_admin_stats(request: Request):
@@ -2106,6 +2294,8 @@ def get_admin_stats(request: Request):
     total_contacts = cursor.fetchone()[0]
     cursor.execute("SELECT COUNT(*) FROM users")
     total_users = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM co_rentals WHERE status = 'open'")
+    open_co_rentals = cursor.fetchone()[0]
     conn.close()
     return {
         "ok": True,
@@ -2115,6 +2305,7 @@ def get_admin_stats(request: Request):
         "total_bookings": total_bookings,
         "total_contacts": total_contacts,
         "total_users": total_users,
+        "open_co_rentals": open_co_rentals,
     }
 
 
@@ -2134,7 +2325,8 @@ def get_admin_users(request: Request, page: int = 1, per_page: int = 15, search:
     total_pages = max(1, (total + per_page - 1) // per_page)
     page = max(1, min(page, total_pages))
     cursor.execute(
-        f"SELECT id, name, email, role, COALESCE(banned, 0) FROM users {where} ORDER BY id ASC LIMIT ? OFFSET ?",
+        f"SELECT id, name, email, role, COALESCE(banned, 0), COALESCE(plan,'free'), plan_expires_at"
+        f" FROM users {where} ORDER BY id ASC LIMIT ? OFFSET ?",
         cond_params + [per_page, (page - 1) * per_page],
     )
     rows = cursor.fetchall()
@@ -2142,7 +2334,15 @@ def get_admin_users(request: Request, page: int = 1, per_page: int = 15, search:
 
     return {
         "ok": True,
-        "data": [{"id": r[0], "name": r[1], "email": r[2], "role": r[3], "banned": bool(r[4])} for r in rows],
+        "data": [
+            {
+                "id": r[0], "name": r[1], "email": r[2],
+                "role": r[3], "banned": bool(r[4]),
+                "plan": r[5] or "free",
+                "plan_expires_at": r[6],
+            }
+            for r in rows
+        ],
         "total": total,
         "page": page,
         "per_page": per_page,
@@ -2156,6 +2356,24 @@ async def create_space(body: SpaceRequest, request: Request):
     requester = get_user_from_token(request.headers.get("X-Auth-Token", ""))
     if not requester:
         return {"ok": False, "message": "請先登入才能上架空間"}
+
+    # ── 訂閱方案限制：免費版最多 1 個空間 ───────────────────────────────────────
+    _disable_limit = os.environ.get("DISABLE_PLAN_LIMIT", "")
+    if requester["role"] != "admin" and requester.get("plan", "free") == "free" and not _disable_limit:
+        _cc = _get_conn()
+        _cur = _cc.cursor()
+        _cur.execute(
+            "SELECT COUNT(*) FROM spaces WHERE owner_email = ? AND status != '已拒絕'",
+            (requester["email"],),
+        )
+        _count = _cur.fetchone()[0]
+        _cc.close()
+        if _count >= 1:
+            return {
+                "ok": False,
+                "message": "免費方案只能上架 1 個空間，升級為專業方案即可無限上架。",
+                "upgrade_required": True,
+            }
 
     # ── 欄位長度限制 ──────────────────────────────────────────────────────────
     field_limits = [
@@ -2807,17 +3025,30 @@ def cancel_co_rental(co_rental_id: int, request: Request):
         conn.close()
         return {"ok": False, "message": "找不到此拼場活動"}
     organizer_email, status = row
+    # 允許操作：發起人、管理員、或此拼場對應空間的場地主
+    is_space_owner = False
     if user["email"] != organizer_email and user["role"] != "admin":
-        conn.close()
-        return {"ok": False, "message": "只有發起人才能取消拼場"}
-    if status == "full":
-        conn.close()
-        return {"ok": False, "message": "名額已滿的拼場無法取消"}
+        cursor.execute(
+            "SELECT owner_email FROM spaces WHERE id = (SELECT space_id FROM co_rentals WHERE id = ?)",
+            (co_rental_id,),
+        )
+        owner_row = cursor.fetchone()
+        if owner_row and owner_row[0] == user["email"]:
+            is_space_owner = True
+        else:
+            conn.close()
+            return {"ok": False, "message": "只有發起人或場地主才能取消拼場"}
 
-    cursor.execute("UPDATE co_rentals SET status = 'cancelled' WHERE id = ?", (co_rental_id,))
+    if status == "closed":
+        conn.close()
+        return {"ok": False, "message": "此拼場已關閉"}
+
+    cursor.execute("UPDATE co_rentals SET status = 'closed' WHERE id = ?", (co_rental_id,))
     conn.commit()
     conn.close()
-    return {"ok": True, "message": "拼場已取消"}
+    actor = "場地主" if is_space_owner else ("管理員" if user["role"] == "admin" else "發起人")
+    logger.info(f"[CO-RENTAL CANCEL] id={co_rental_id} by={user['email']} role={actor}")
+    return {"ok": True, "message": "拼場已關閉"}
 
 
 # ── 健康檢查：Docker HEALTHCHECK 與 nginx upstream_check 使用。──────────────────

@@ -94,10 +94,10 @@ async function fetchChallenge(questionEl, idInputEl) {
       questionEl.textContent = data.data.question
       idInputEl.value        = data.data.id
     } else {
-      questionEl.textContent = "⚠ 無法載入驗證碼"
+      questionEl.textContent = "無法載入驗證碼"
     }
   } catch {
-    questionEl.textContent = "⚠ 網路錯誤，請重新整理"
+    questionEl.textContent = "網路錯誤，請重新整理"
   }
 }
 
@@ -216,6 +216,7 @@ function renderNavbar() {
       <a href="/explore">探索空間</a>
       <a href="/recommend">智慧推薦</a>
       <a href="/co-rental">拼場</a>
+      <a href="/pricing">定價</a>
       <a href="/login">登入</a>
       <a href="/register">註冊</a>
       <a href="/contact">聯絡我們</a>`
@@ -237,6 +238,7 @@ function renderNavbar() {
       <a href="/explore">探索空間</a>
       <a href="/recommend">智慧推薦</a>
       <a href="/co-rental">拼場</a>
+      <a href="/pricing">定價</a>
       <a href="/host">上架空間</a>
       <a href="/user">使用者中心</a>
       <a href="/contact">聯絡我們</a>
@@ -255,7 +257,7 @@ function initScrollToTop() {
   btn.id = "scroll-top-btn"
   btn.setAttribute("aria-label", "返回頂部")
   btn.setAttribute("type", "button")
-  btn.textContent = "↑"
+  btn.innerHTML = '<i class="ri-arrow-up-line"></i>'
   document.body.appendChild(btn)
 
   window.addEventListener("scroll", () => {
@@ -302,16 +304,16 @@ function createSpaceCard(space) {
 function createHomeCoRentalCard(cr) {
   const slotsLeft  = cr.available_slots ?? (cr.total_slots - cr.filled_slots)
   const badgeClass = slotsLeft <= 1 ? "almost" : "open"
-  const badgeText  = slotsLeft <= 1 ? `⚡ 僅剩 ${slotsLeft} 位` : `剩 ${slotsLeft} 位`
+  const badgeText  = slotsLeft <= 1 ? `<i class="ri-flashlight-line"></i> 僅剩 ${slotsLeft} 位` : `剩 ${slotsLeft} 位`
   return `
     <div class="home-cr-card">
       <div class="home-cr-space">${escapeHtml(cr.space_name)}</div>
       <div class="home-cr-meta">
-        <span>📅 ${escapeHtml(cr.date)}</span>
-        <span>🕐 ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</span>
-        <span>📍 ${escapeHtml(cr.space_city || "")}</span>
+        <span><i class="ri-calendar-event-line"></i> ${escapeHtml(cr.date)}</span>
+        <span><i class="ri-time-line"></i> ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</span>
+        <span><i class="ri-map-pin-2-line"></i> ${escapeHtml(cr.space_city || "")}</span>
       </div>
-      ${cr.purpose ? `<div class="home-cr-purpose">🎯 ${escapeHtml(cr.purpose)}</div>` : ""}
+      ${cr.purpose ? `<div class="home-cr-purpose"><i class="ri-focus-3-line"></i> ${escapeHtml(cr.purpose)}</div>` : ""}
       <div class="home-cr-footer">
         <span class="home-cr-price">${formatPrice(cr.price_per_slot)} / 人</span>
         <span class="home-cr-badge ${badgeClass}">${badgeText}</span>
@@ -425,7 +427,7 @@ async function initExplorePage() {
     // Leaflet 未載入（CDN 不可達）時給友善提示
     if (typeof L === "undefined") {
       mapContainer.innerHTML =
-        `<div style="padding:3rem;text-align:center;color:var(--muted)">⚠ 地圖載入失敗，請確認網路連線後重新整理頁面。</div>`
+        `<div style="padding:3rem;text-align:center;color:var(--muted)"><i class="ri-alert-line"></i> 地圖載入失敗，請確認網路連線後重新整理頁面。</div>`
       return
     }
     // 懶初始化 Leaflet Map（以台灣中心為初始視圖）
@@ -616,7 +618,7 @@ async function initSpacePage() {
         <p>最多 ${space.capacity} 人</p>
         <h2>${formatPrice(space.price_per_hour)} / 小時</h2>
         <a class="book-button" href="${bookingLink}">${bookingText}</a>
-        <button id="start-corent-btn" type="button" class="corent-start-btn">👥 發起拼場</button>
+        <button id="start-corent-btn" type="button" class="corent-start-btn"><i class="ri-group-line"></i> 發起拼場</button>
         <p class="corent-hint">一個人租太貴？找人一起分攤</p>
       </aside>
     </div>`
@@ -645,7 +647,7 @@ async function initSpacePage() {
           <h2>發起拼場</h2>
           <button type="button" id="corent-modal-close" class="modal-close">✕</button>
         </div>
-        <p class="corent-space-label">📍 ${escapeHtml(space.name)}</p>
+        <p class="corent-space-label"><i class="ri-map-pin-2-line"></i> ${escapeHtml(space.name)}</p>
         <form id="corent-form" style="display:grid;gap:14px;margin-top:16px">
           <div class="form-grid">
             <label>日期<input type="date" id="corent-date" required min="${today}" /></label>
@@ -704,7 +706,7 @@ async function initSpacePage() {
         const aside   = container.querySelector(".detail-side")
         const successP = document.createElement("p")
         successP.className = "corent-success-msg"
-        successP.textContent = "✅ 拼場已發起！去拼場頁面找夥伴。"
+        successP.innerHTML = '<i class="ri-checkbox-circle-line"></i> 拼場已發起！去拼場頁面找夥伴。'
         aside.appendChild(successP)
       } else {
         errEl.textContent = data.message || "發起失敗，請稍後再試"
@@ -952,7 +954,7 @@ async function loadAnnouncementBanner() {
     wrap.style.cssText = "padding-top:24px"
     wrap.innerHTML = anns.map((a) => `
       <div class="announcement-banner">
-        <strong>📢 ${escapeHtml(a.title)}</strong>
+        <strong><i class="ri-megaphone-line"></i> ${escapeHtml(a.title)}</strong>
         ${a.content ? `<p>${escapeHtml(a.content)}</p>` : ""}
       </div>`).join("")
     main.insertBefore(wrap, main.firstChild)
@@ -1027,7 +1029,7 @@ async function initBookingPage() {
       timeToHour(slot.start_time) < end && timeToHour(slot.end_time) > start
     )
     if (conflictWarning) {
-      conflictWarning.textContent = hasConflict ? "⚠ 您選擇的時段與現有預約重疊，請調整時間" : ""
+      conflictWarning.innerHTML = hasConflict ? '<i class="ri-alert-line"></i> 您選擇的時段與現有預約重疊，請調整時間' : ""
       conflictWarning.classList.toggle("hidden", !hasConflict)
     }
   }
@@ -1285,6 +1287,7 @@ async function initDashboardPage() {
       <article class="stat-card"><strong>${s.pending_spaces}</strong><span>待審核空間</span></article>
       <article class="stat-card"><strong>${s.confirmed_spaces}</strong><span>已公開空間</span></article>
       <article class="stat-card"><strong>${s.total_bookings}</strong><span>預約總數</span></article>
+      <article class="stat-card"><strong>${s.open_co_rentals ?? 0}</strong><span>進行中拼場</span></article>
       <article class="stat-card"><strong>${s.total_contacts}</strong><span>聯絡訊息</span></article>
       <article class="stat-card"><strong>${s.total_users}</strong><span>會員總數</span></article>`
     // 顯示最後更新時間，讓管理員知道數字是即時的
@@ -1302,23 +1305,32 @@ async function initDashboardPage() {
 
     function renderUsers(list) {
       adminUserList.innerHTML = list.length
-        ? list.map((u) => `
+        ? list.map((u) => {
+          const isPro     = u.plan === "pro"
+          const planLabel = isPro ? "專業" : "免費"
+          const planClass = isPro ? "pro" : "free"
+          const expStr    = isPro && u.plan_expires_at ? `到 ${u.plan_expires_at.slice(0,10)}` : ""
+          return `
           <article class="booking-card">
             <div>
               <span class="status ${u.role === "admin" ? "status-confirmed" : (u.banned ? "status-cancelled" : "status-pending")}">
                 ${u.role === "admin" ? "管理員" : (u.banned ? "已停用" : "會員")}
               </span>
+              <span class="plan-badge ${planClass}" style="margin-left:6px">${planLabel}${expStr ? ` · ${expStr}` : ""}</span>
               <code class="entity-code">${formatCode("U", u.id)}</code>
               <h2>${escapeHtml(u.name)}</h2>
               <p>${escapeHtml(u.email)}</p>
             </div>
             ${u.role !== "admin" ? `
             <div class="booking-actions">
+              ${isPro
+                ? `<button class="downgrade-user-btn" data-email="${escapeHtml(u.email)}" style="background:var(--muted);font-size:0.82rem">降回免費</button>`
+                : `<button class="upgrade-user-btn" data-email="${escapeHtml(u.email)}" style="background:var(--primary);font-size:0.82rem">升級 Pro</button>`}
               ${u.banned
                 ? `<button class="unban-user-btn" data-user-id="${u.id}" style="background:var(--primary)">解除停用</button>`
                 : `<button class="ban-user-btn confirm-button" data-user-id="${u.id}" style="background:#b3261e">停用帳號</button>`}
             </div>` : ""}
-          </article>`).join("")
+          </article>`}).join("")
         : emptyState("users", "目前沒有任何會員", "新會員註冊後會出現在這裡。")
 
       document.querySelectorAll(".ban-user-btn").forEach((btn) => {
@@ -1337,6 +1349,33 @@ async function initDashboardPage() {
           const res  = await fetch(`/api/admin/users/${btn.dataset.userId}/unban`, { method: "POST", headers: getAuthHeaders(true) })
           const data = await res.json()
           if (data.ok) { showToast("帳號已恢復"); await loadAdminUsers() }
+          else { showToast(data.message, "error"); setButtonLoading(btn, false) }
+        })
+      })
+      document.querySelectorAll(".upgrade-user-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const months = prompt(`升級 ${btn.dataset.email} 為專業方案，幾個月？（預設 1）`, "1")
+          if (months === null) return
+          setButtonLoading(btn, true)
+          const res  = await fetch(`/api/admin/users/${encodeURIComponent(btn.dataset.email)}/set-plan`, {
+            method: "POST", headers: getAuthHeaders(true),
+            body: JSON.stringify({ plan: "pro", months: parseInt(months) || 1 }),
+          })
+          const data = await res.json()
+          if (data.ok) { showToast("已升級為專業方案 ✅"); await loadAdminUsers() }
+          else { showToast(data.message, "error"); setButtonLoading(btn, false) }
+        })
+      })
+      document.querySelectorAll(".downgrade-user-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!await showConfirmDialog(`確定要將 ${btn.dataset.email} 降回免費方案嗎？`)) return
+          setButtonLoading(btn, true)
+          const res  = await fetch(`/api/admin/users/${encodeURIComponent(btn.dataset.email)}/set-plan`, {
+            method: "POST", headers: getAuthHeaders(true),
+            body: JSON.stringify({ plan: "free", months: 0 }),
+          })
+          const data = await res.json()
+          if (data.ok) { showToast("已降回免費方案"); await loadAdminUsers() }
           else { showToast(data.message, "error"); setButtonLoading(btn, false) }
         })
       })
@@ -1461,9 +1500,57 @@ async function initDashboardPage() {
     })
   }
 
+  // ── 拼場管理 ────────────────────────────────────────────────────────────────
+  const adminCrList = document.querySelector("#admin-co-rental-list")
+  async function loadAdminCoRentals(page = 1) {
+    if (!adminCrList) return
+    const q   = (document.querySelector("#co-rental-search")?.value || "").trim()
+    adminCrList.innerHTML = skeletonBookingCards(3)
+    const res  = await fetch(`/api/admin/co-rentals?page=${page}&per_page=15&search=${encodeURIComponent(q)}`, { headers: getAuthHeaders() })
+    const data = await res.json()
+    const items = data.data || []
+    const statusLabel = { open: "開放中", full: "已額滿", closed: "已關閉" }
+    const statusClass = { open: "status-confirmed", full: "status-pending", closed: "status-cancelled" }
+    adminCrList.innerHTML = items.length
+      ? items.map((cr) => `
+        <article class="booking-card">
+          <div>
+            <span class="status ${statusClass[cr.status] || "status-pending"}">${statusLabel[cr.status] || cr.status}</span>
+            <h2>${escapeHtml(cr.space_name)}</h2>
+            <p>${escapeHtml(cr.date)} · ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)} · ${escapeHtml(cr.space_city)}</p>
+            <p>發起人：${escapeHtml(cr.organizer_email)} · ${cr.filled_slots}/${cr.total_slots} 人 · ${formatPrice(cr.price_per_slot)}/人</p>
+            ${cr.purpose ? `<p style="color:var(--muted);font-size:0.85rem">${escapeHtml(cr.purpose)}</p>` : ""}
+          </div>
+          ${cr.status === "open" ? `
+          <div class="booking-actions">
+            <button class="admin-cancel-cr-btn" data-id="${cr.id}" style="background:#b3261e">強制關閉</button>
+          </div>` : ""}
+        </article>`).join("")
+      : emptyState("group", "目前沒有拼場資料", "使用者發起拼場後會出現在這裡。")
+
+    adminCrList.querySelectorAll(".admin-cancel-cr-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!await showConfirmDialog("確定要強制關閉這個拼場嗎？")) return
+        setButtonLoading(btn, true)
+        const r = await fetch(`/api/co-rentals/${btn.dataset.id}`, { method: "DELETE", headers: getAuthHeaders() })
+        const d = await r.json()
+        if (d.ok) { showToast("拼場已關閉"); loadAdminCoRentals() }
+        else { showToast(d.message || "操作失敗", "error"); setButtonLoading(btn, false) }
+      })
+    })
+
+    const crSearch = document.querySelector("#co-rental-search")
+    if (crSearch && !crSearch.dataset.bound) {
+      crSearch.dataset.bound = "1"
+      crSearch.oninput = () => loadAdminCoRentals(1)
+    }
+    renderPagination("co-rental-admin-pagination", data.page, data.total_pages, loadAdminCoRentals)
+  }
+
   await loadAdminStats()
   await loadBookings()
   await loadSpacesForAdmin()
+  await loadAdminCoRentals()
   await loadAdminUsers()
   await loadContacts()
   await loadAnnouncements()
@@ -1584,6 +1671,26 @@ function initHostPage() {
       }),
     })
     const result = await response.json()
+    setButtonLoading(submitBtn, false)
+    if (!result.ok) {
+      if (result.upgrade_required) {
+        form.classList.add("hidden")
+        success.innerHTML = `
+          <strong>免費方案上限</strong><br>
+          免費方案只能上架 1 個空間。<br>
+          <a href="/pricing" style="color:var(--primary);font-weight:700">升級專業方案 →</a>
+          即可無限上架。`
+        success.style.background = "#fff8e1"
+        success.style.borderColor = "#f5a623"
+      } else {
+        success.textContent = result.message || "上架失敗，請稍後再試"
+        success.style.background = "#ffebee"
+        success.style.borderColor = "#c62828"
+        form.classList.add("hidden")
+      }
+      success.classList.remove("hidden")
+      return
+    }
     form.classList.add("hidden")
     success.textContent = result.message
     success.classList.remove("hidden")
@@ -1680,7 +1787,7 @@ function initRegisterPage() {
     if (result.needs_verification) {
       form.classList.add("hidden")
       if (success) {
-        success.textContent = "🎉 " + result.message
+        success.innerHTML = '<i class="ri-award-fill"></i> ' + escapeHtml(result.message)
         success.classList.remove("hidden")
       }
     } else {
@@ -1698,7 +1805,7 @@ async function initVerifyEmailPage() {
   if (!token) {
     resultEl.innerHTML = `
       <div class="success-box" style="background:#fff0f0;color:#b3261e">
-        <p>❌ 無效的驗證連結，請重新申請。</p>
+        <p><i class="ri-close-circle-line"></i> 無效的驗證連結，請重新申請。</p>
         <p style="margin-top:10px"><a href="/register">返回註冊頁面</a></p>
       </div>`
     return
@@ -1720,7 +1827,7 @@ async function initVerifyEmailPage() {
     } else {
       resultEl.innerHTML = `
         <div class="success-box" style="background:#fff0f0;color:#b3261e">
-          <p>❌ ${escapeHtml(data.message)}</p>
+          <p><i class="ri-close-circle-line"></i> ${escapeHtml(data.message)}</p>
           <p style="margin-top:10px"><a href="/register">重新註冊</a></p>
         </div>`
     }
@@ -1800,6 +1907,32 @@ function initUserPage() {
   const userBookingList  = document.querySelector("#user-booking-list")
   welcome.textContent = `${user.name}，你可以在這裡管理自己的空間與預約。`
   logoutButton.addEventListener("click", () => { clearCurrentUser(); window.location.href = "/login" })
+
+  // ── 訂閱方案資訊卡 ────────────────────────────────────────────────────────
+  const planBox = document.querySelector("#user-plan-box")
+  if (planBox) {
+    fetch("/api/user/plan", { headers: getAuthHeaders() })
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.ok) return
+        const d      = data.data
+        const isPro  = d.is_pro
+        const label  = isPro ? "專業方案" : "免費方案"
+        const expStr = isPro && d.plan_expires_at
+          ? `到期日：${d.plan_expires_at.slice(0, 10)}`
+          : isPro ? "" : `已上架 ${d.space_count} / ${d.space_limit} 個空間`
+        planBox.innerHTML = `
+          <div>
+            <h3><span class="plan-badge ${isPro ? "pro" : "free"}">${label}</span></h3>
+            <p>${expStr}</p>
+          </div>
+          ${!isPro
+            ? `<a href="/pricing" class="plan-upgrade-btn"><i class="ri-rocket-line"></i> 升級專業方案</a>`
+            : `<span style="font-size:0.85rem;color:var(--primary-dark);font-weight:700">✅ 已啟用</span>`
+          }`
+      })
+      .catch(() => {})
+  }
 
   async function loadUserSpaces() {
     userSpaceList.innerHTML = skeletonAdminSpaceCards(2)
@@ -2052,7 +2185,98 @@ function initUserPage() {
     renderCalendar(calContainer, now.getFullYear(), now.getMonth(), result.data || [])
   }
 
-  loadUserSpaces(); loadOwnerBookings(); loadCalendar(); loadUserBookings()
+  // ── 我發起的拼場 ────────────────────────────────────────────────────────────
+  async function loadUserCoRentals() {
+    const container = document.querySelector("#user-co-rental-list")
+    if (!container) return
+    container.innerHTML = skeletonCards(2)
+    try {
+      const res   = await fetch("/api/user/co-rentals", { headers: getAuthHeaders() })
+      const data  = await res.json()
+      const items = data.data || []
+      if (!items.length) {
+        container.innerHTML = emptyState("group", "還沒有發起過拼場",
+          "到拼場頁面發起，找志同道合的夥伴一起分攤費用！",
+          `<a href="/co-rental" class="book-button" style="width:auto;padding:0 28px;margin-top:0;display:inline-flex">前往拼場頁</a>`)
+        return
+      }
+      const statusLabel = { open: "開放中", full: "已額滿", closed: "已關閉" }
+      const statusClass = { open: "status-confirmed", full: "status-pending", closed: "status-cancelled" }
+      container.innerHTML = items.map((cr) => `
+        <article class="booking-card">
+          <div>
+            <span class="status ${statusClass[cr.status] || "status-pending"}">${statusLabel[cr.status] || cr.status}</span>
+            <h2>${escapeHtml(cr.space_name)}</h2>
+            <p>${escapeHtml(cr.date)} · ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</p>
+            <p>${escapeHtml(cr.space_city)} · ${cr.filled_slots} / ${cr.total_slots} 人 · ${formatPrice(cr.price_per_slot)} / 人</p>
+            ${cr.purpose ? `<p style="color:var(--muted);font-size:0.88rem">${escapeHtml(cr.purpose)}</p>` : ""}
+          </div>
+          ${cr.status === "open" ? `
+          <div class="booking-actions">
+            <button class="cancel-cr-btn" data-id="${cr.id}" style="background:#b3261e">撤銷拼場</button>
+          </div>` : ""}
+        </article>`).join("")
+
+      container.querySelectorAll(".cancel-cr-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!await showConfirmDialog("確定要撤銷這個拼場嗎？已加入的成員將會被通知。")) return
+          setButtonLoading(btn, true)
+          const res  = await fetch(`/api/co-rentals/${btn.dataset.id}`, { method: "DELETE", headers: getAuthHeaders() })
+          const d    = await res.json()
+          if (d.ok) { showToast("拼場已撤銷"); loadUserCoRentals() }
+          else { showToast(d.message || "撤銷失敗", "error"); setButtonLoading(btn, false) }
+        })
+      })
+    } catch {
+      container.innerHTML = emptyState("group", "載入失敗", "請重新整理頁面。")
+    }
+  }
+
+  // ── 我的場地的拼場活動（場地主視角）────────────────────────────────────────
+  async function loadOwnerCoRentals() {
+    const container = document.querySelector("#owner-co-rental-list")
+    if (!container) return
+    container.innerHTML = skeletonCards(2)
+    try {
+      const res   = await fetch("/api/owner/co-rentals", { headers: getAuthHeaders() })
+      const data  = await res.json()
+      const items = data.data || []
+      if (!items.length) {
+        container.innerHTML = `<p style="color:var(--muted);font-size:0.9rem">目前沒有人在你的場地發起拼場。</p>`
+        return
+      }
+      const statusLabel = { open: "開放中", full: "已額滿" }
+      const statusClass = { open: "status-confirmed", full: "status-pending" }
+      container.innerHTML = items.map((cr) => `
+        <article class="booking-card">
+          <div>
+            <span class="status ${statusClass[cr.status] || "status-pending"}">${statusLabel[cr.status] || cr.status}</span>
+            <h2>${escapeHtml(cr.space_name)}</h2>
+            <p>${escapeHtml(cr.date)} · ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</p>
+            <p>發起人：${escapeHtml(cr.organizer_email)} · ${cr.filled_slots}/${cr.total_slots} 人 · ${formatPrice(cr.price_per_slot)}/人</p>
+            ${cr.purpose ? `<p style="color:var(--muted);font-size:0.88rem">${escapeHtml(cr.purpose)}</p>` : ""}
+          </div>
+          <div class="booking-actions">
+            <button class="owner-cancel-cr-btn" data-id="${cr.id}" style="background:#b3261e">關閉拼場</button>
+          </div>
+        </article>`).join("")
+
+      container.querySelectorAll(".owner-cancel-cr-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!await showConfirmDialog("確定要關閉這個拼場嗎？")) return
+          setButtonLoading(btn, true)
+          const res  = await fetch(`/api/co-rentals/${btn.dataset.id}`, { method: "DELETE", headers: getAuthHeaders() })
+          const d    = await res.json()
+          if (d.ok) { showToast("拼場已關閉"); loadOwnerCoRentals() }
+          else { showToast(d.message || "操作失敗", "error"); setButtonLoading(btn, false) }
+        })
+      })
+    } catch {
+      container.innerHTML = `<p style="color:var(--muted)">載入失敗，請重新整理頁面。</p>`
+    }
+  }
+
+  loadUserSpaces(); loadOwnerBookings(); loadCalendar(); loadUserBookings(); loadUserCoRentals(); loadOwnerCoRentals()
 }
 
 // 初始化忘記密碼頁
@@ -2241,10 +2465,10 @@ async function initCoRentalPage() {
               <span class="co-rental-slots ${slotsClass}">剩 ${slotsLeft} 位</span>
             </div>
             <div class="co-rental-meta">
-              <span>📅 ${escapeHtml(cr.date)} ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</span>
-              <span>📍 ${escapeHtml(cr.space_city)} · ${escapeHtml(cr.space_type)}</span>
-              ${cr.purpose ? `<span>🎯 ${escapeHtml(cr.purpose)}</span>` : ""}
-              <span>👥 ${cr.filled_slots} / ${cr.total_slots} 人</span>
+              <span><i class="ri-calendar-event-line"></i> ${escapeHtml(cr.date)} ${escapeHtml(cr.start_time)}–${escapeHtml(cr.end_time)}</span>
+              <span><i class="ri-map-pin-2-line"></i> ${escapeHtml(cr.space_city)} · ${escapeHtml(cr.space_type)}</span>
+              ${cr.purpose ? `<span><i class="ri-focus-3-line"></i> ${escapeHtml(cr.purpose)}</span>` : ""}
+              <span><i class="ri-group-line"></i> ${cr.filled_slots} / ${cr.total_slots} 人</span>
             </div>
             <div class="co-rental-price">${formatPrice(cr.price_per_slot)} / 人</div>
             <div class="co-rental-actions">
@@ -2302,7 +2526,11 @@ async function initCoRentalPage() {
   }
 
   createBtn.addEventListener("click", () => {
-    if (!currentUser) { window.location.href = "/login"; return }
+    if (!currentUser) {
+      showToast("請先登入才能發起拼場", "error")
+      setTimeout(() => { window.location.href = "/login" }, 1200)
+      return
+    }
     loadSpacesForSelect()
     modal.classList.remove("hidden")
   })

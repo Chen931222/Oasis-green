@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Oasis 綠洲｜探索空間</title>
-  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/static/style.css?v=20260601a" />
   <!-- Leaflet.js 地圖（地圖模式用，僅在此頁載入）-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -58,16 +59,16 @@
           <input id="price-filter" type="number" min="0" placeholder="不限" />
         </label>
         <!-- 智慧推薦入口 -->
-        <a href="/recommend" class="recommend-link">✨ 說出需求，讓 AI 推薦</a>
+        <a href="/recommend" class="recommend-link"><i class="ri-sparkling-2-line"></i> 說出需求，讓 AI 推薦</a>
       </aside>
       <section>
         <!-- 列表 / 地圖切換列 -->
         <div class="view-toggle-bar">
           <button id="view-list-btn" class="view-btn active" title="列表模式">
-            ☰ 列表
+            <i class="ri-layout-list-line"></i> 列表
           </button>
           <button id="view-map-btn" class="view-btn" title="地圖模式">
-            🗺 地圖
+            <i class="ri-map-2-line"></i> 地圖
           </button>
         </div>
         <p id="result-count" class="result-count"></p>
@@ -80,8 +81,13 @@
     </div>
   </main>
 
-  <footer class="footer">© 2026 Oasis 綠洲</footer>
-  <script src="/static/main.js?v=20260531a"></script>
+  <footer class="footer">
+    © 2026 Oasis 綠洲 ·
+    <a href="/terms">服務條款</a> ·
+    <a href="/privacy">隱私政策</a> ·
+    <a href="/contact">聯絡我們</a>
+  </footer>
+  <script src="/static/main.js?v=20260601a"></script>
 </body>
 
 </html>

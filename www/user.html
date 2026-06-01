@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Oasis 綠洲｜使用者中心</title>
-  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/static/style.css?v=20260601a" />
 </head>
 
 <body data-page="user">
@@ -27,6 +28,9 @@
       </div>
       <p id="user-welcome">登入後可以送出空間上架申請。</p>
     </div>
+    <!-- 訂閱方案資訊 -->
+    <div id="user-plan-box" class="plan-info-box"></div>
+
     <section class="user-section">
       <h2>個人資料設定</h2>
       <form id="profile-form" class="form-card">
@@ -53,6 +57,15 @@
       <div id="user-space-list" class="booking-list"></div>
     </section>
     <section class="user-section">
+      <h2>我發起的拼場</h2>
+      <div id="user-co-rental-list" class="user-cr-list"></div>
+    </section>
+    <section class="user-section">
+      <h2>我的場地的拼場活動</h2>
+      <p style="color:var(--muted);font-size:0.9rem;margin:-8px 0 16px">以下是其他人在你的場地發起的拼場，你可以在必要時關閉。</p>
+      <div id="owner-co-rental-list" class="user-cr-list"></div>
+    </section>
+    <section class="user-section">
       <h2>我的空間收到的預約申請</h2>
       <div id="owner-booking-list" class="booking-list"></div>
     </section>
@@ -66,8 +79,13 @@
     </section>
   </main>
 
-  <footer class="footer">© 2026 Oasis 綠洲</footer>
-  <script src="/static/main.js?v=20260531a"></script>
+  <footer class="footer">
+    © 2026 Oasis 綠洲 ·
+    <a href="/terms">服務條款</a> ·
+    <a href="/privacy">隱私政策</a> ·
+    <a href="/contact">聯絡我們</a>
+  </footer>
+  <script src="/static/main.js?v=20260601a"></script>
 </body>
 
 </html>

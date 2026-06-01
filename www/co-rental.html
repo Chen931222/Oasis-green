@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Oasis 綠洲｜拼場</title>
-  <link rel="stylesheet" href="/static/style.css?v=20260531a" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="/static/style.css?v=20260601a" />
 </head>
 
 <body data-page="co-rental">
@@ -30,19 +31,21 @@
 
     <!-- 篩選列 + 發起按鈕 -->
     <div class="co-rental-topbar">
-      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-        <label style="margin:0;display:flex;align-items:center;gap:8px;font-weight:500">
-          城市
-          <select id="co-city-filter" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border)">
+      <div class="co-rental-filters">
+        <div class="cr-filter-item">
+          <span class="cr-filter-label">城市</span>
+          <select id="co-city-filter" class="cr-filter-input">
             <option value="">全部城市</option>
           </select>
-        </label>
-        <label style="margin:0;display:flex;align-items:center;gap:8px;font-weight:500">
-          日期
-          <input id="co-date-filter" type="date" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border)" />
-        </label>
+        </div>
+        <div class="cr-filter-item">
+          <span class="cr-filter-label">日期</span>
+          <input id="co-date-filter" type="date" class="cr-filter-input" />
+        </div>
       </div>
-      <button id="create-co-rental-btn" class="btn-primary">＋ 發起拼場</button>
+      <button id="create-co-rental-btn" class="btn-primary">
+        <i class="ri-add-line"></i> 發起拼場
+      </button>
     </div>
 
     <div id="co-rental-list" class="co-rental-grid"></div>
@@ -55,7 +58,7 @@
       <div class="modal-card">
         <div class="modal-header">
           <h2>發起拼場</h2>
-          <button id="modal-close-btn" class="modal-close">✕</button>
+          <button id="modal-close-btn" class="modal-close"><i class="ri-close-line"></i></button>
         </div>
         <form id="co-rental-form">
           <label>
@@ -99,8 +102,13 @@
     </div>
   </main>
 
-  <footer class="footer">© 2026 Oasis 綠洲</footer>
-  <script src="/static/main.js?v=20260531a"></script>
+  <footer class="footer">
+    © 2026 Oasis 綠洲 ·
+    <a href="/terms">服務條款</a> ·
+    <a href="/privacy">隱私政策</a> ·
+    <a href="/contact">聯絡我們</a>
+  </footer>
+  <script src="/static/main.js?v=20260601a"></script>
 </body>
 
 </html>
