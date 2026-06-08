@@ -1,0 +1,23 @@
+name: Keep Render Awake
+
+# Render 免費方案閒置 15 分鐘會自動休眠，喚醒時第一個請求會很慢。
+# 這個排程每 5 分鐘呼叫一次健康檢查端點，讓網站保持在喚醒狀態。
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:   # 允許在 GitHub Actions 頁面手動觸發，方便測試
+
+jobs:
+  ping:
+    name: Ping 健康檢查端點
+    runs-on: ubuntu-latest
+    steps:
+      - name: 呼叫 /api/health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oasis-green.onrender.com/api/health)
+          echo "HTTP 狀態碼：$STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::健康檢查回應非 200（$STATUS），網站可能正在啟動中，屬正常現象"
+          else
+            echo "✅ 網站運作正常"
+          fi
