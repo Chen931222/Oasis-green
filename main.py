@@ -124,6 +124,29 @@ def _get_pg_pool():
     return _PG_POOL
 
 
+def _pg_conn_is_alive(conn) -> bool:
+    """
+    以一次輕量查詢（SELECT 1）確認連線池裡拿到的連線仍然存活。
+
+    背景：Neon 等 Serverless PostgreSQL 在閒置一段時間後會自動休眠並關閉
+    底層 TCP 連線；但連線池（ThreadedConnectionPool）並不知道，仍可能把這種
+    「殭屍連線」交出去，導致下一個 request 一執行查詢就丟出
+    OperationalError / InterfaceError，回應變成 500。
+    這裡先用最輕量的查詢探測一次，壞掉就讓呼叫端淘汰、換一條新的。
+    """
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1")
+        conn.rollback()   # 結束探測用的交易，避免連線停留在 idle in transaction
+        return True
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        return False
+
+
 class _PGConn:
     """
     包裝 psycopg2 connection（從連線池取得），使 .cursor() 回傳 _PGCursor。
@@ -131,7 +154,18 @@ class _PGConn:
     """
 
     def __init__(self, url: str):
-        self._conn = _get_pg_pool().getconn()
+        pool = _get_pg_pool()
+        conn = pool.getconn()
+        if not _pg_conn_is_alive(conn):
+            # 連線已失效：淘汰它（close=True，不歸還池子重複使用），
+            # 並向池子重新要一條——通常會是新建立的健康連線。
+            logger.warning("[DB POOL] 偵測到殭屍連線，淘汰並重新取得新連線")
+            try:
+                pool.putconn(conn, close=True)
+            except Exception:
+                pass
+            conn = pool.getconn()
+        self._conn = conn
 
     def cursor(self):   return _PGCursor(self._conn.cursor())
     def commit(self):   self._conn.commit()
