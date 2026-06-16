@@ -26,3 +26,6 @@ logs/
 .vscode/
 .idea/
 *.DS_Store
+
+# Claude Code 本機工作目錄
+.claude/
