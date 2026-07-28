@@ -336,6 +336,7 @@ class LoginRequest(BaseModel):
     hp: str = ""
     captcha_id: str = ""
     captcha_answer: str = ""
+    remember: bool = True  # 記得我：False 時 token 只發 1 天，關瀏覽器即登出（前端存 sessionStorage）
 
 class BookingRequest(BaseModel):
     space_id: Optional[int] = None
@@ -1824,7 +1825,8 @@ async def login_user(body: LoginRequest, request: Request):
         return {"ok": False, "message": "請先完成信箱驗證，請查收你的信箱並點擊驗證連結"}
 
     token = secrets.token_hex(32)
-    expires_at = (datetime.now() + timedelta(days=30)).isoformat(timespec="seconds")
+    token_days = 30 if body.remember else 1
+    expires_at = (datetime.now() + timedelta(days=token_days)).isoformat(timespec="seconds")
     cursor.execute(
         "UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?",
         (token, expires_at, row[0]),
@@ -1835,7 +1837,7 @@ async def login_user(body: LoginRequest, request: Request):
     user = row_to_user(row)
     user["token"] = token
     user["token_expires_at"] = expires_at
-    logger.info(f"[LOGIN] email={email} role={user['role']}")
+    logger.info(f"[LOGIN] email={email} role={user['role']} remember={body.remember}")
     return {"ok": True, "message": "登入成功", "user": user}
 
 

@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png" />
   <title>Oasis 綠洲｜登入</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
   <link rel="stylesheet" href="/static/style.css?v=20260601a" />
@@ -48,6 +51,10 @@
       <input type="hidden" id="captcha-id" />
       <!-- 蜜罐欄位：真人看不到，機器人通常會填 → 被判為爬蟲 -->
       <input type="text" id="hp" name="hp" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;cursor:pointer">
+        <input id="login-remember" type="checkbox" checked style="width:auto;margin:0;accent-color:var(--primary)" />
+        <span>記得我<span style="color:#888;font-size:0.85rem">（公用電腦請取消勾選，關閉瀏覽器即登出）</span></span>
+      </label>
       <button type="submit">登入</button>
       <p id="login-error" class="form-error hidden"></p>
       <p style="margin:0;text-align:right"><a href="/forgot-password" style="color:var(--primary-dark);font-size:0.9rem">忘記密碼？</a></p>

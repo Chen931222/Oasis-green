@@ -101,6 +101,22 @@ class TestLogin:
         assert data["user"]["role"] == "admin"
         assert "token" in data["user"]
 
+    def test_remember_me_token_duration(self, client):
+        """記得我：勾選 → token 發 30 天；取消 → 只發 1 天，關瀏覽器即失效。"""
+        from datetime import datetime, timedelta
+
+        def login_expires(remember):
+            resp = client.post("/api/auth/login", json={
+                "email": "admin@oasis.com", "password": "admin123", "remember": remember
+            })
+            data = resp.json()
+            assert data["ok"] is True
+            return datetime.fromisoformat(data["user"]["token_expires_at"])
+
+        now = datetime.now()
+        assert login_expires(True) > now + timedelta(days=29)
+        assert login_expires(False) < now + timedelta(days=2)
+
     def test_wrong_password(self, client):
         """密碼錯誤應回傳失敗，並提示剩餘機會。"""
         resp = client.post("/api/auth/login", json={

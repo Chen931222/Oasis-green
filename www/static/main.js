@@ -1,37 +1,44 @@
 // main.js：集中管理 Oasis 前端所有 fetch 與頁面互動。
 const page = document.body.dataset.page
 
-function getCurrentUser() {
-  const rawUser = localStorage.getItem("oasisCurrentUser")
-  if (rawUser) {
-    const user = JSON.parse(rawUser)
-    // 無 token 欄位（加入 token 機制前的舊版登入資料）→ 強制清除，視為未登入
-    if (!user.token) {
-      localStorage.removeItem("oasisCurrentUser")
-      return null
-    }
-    if (user.token_expires_at && new Date() > new Date(user.token_expires_at)) {
-      localStorage.removeItem("oasisCurrentUser")
-      sessionStorage.setItem("oasisSessionExpired", "1")
-      return null
-    }
-    return user
+// 登入狀態存兩個地方：勾「記得我」→ localStorage（跨瀏覽器重啟都在）；
+// 沒勾 → sessionStorage（關掉瀏覽器就登出）。讀取時兩邊都找。
+function readUserFrom(store) {
+  const rawUser = store.getItem("oasisCurrentUser")
+  if (!rawUser) return null
+  const user = JSON.parse(rawUser)
+  // 無 token 欄位（加入 token 機制前的舊版登入資料）→ 強制清除，視為未登入
+  if (!user.token) {
+    store.removeItem("oasisCurrentUser")
+    return null
   }
-  const oldSessionUser = sessionStorage.getItem("oasisCurrentUser")
-  if (oldSessionUser) {
-    localStorage.setItem("oasisCurrentUser", oldSessionUser)
-    sessionStorage.removeItem("oasisCurrentUser")
-    return JSON.parse(oldSessionUser)
+  if (user.token_expires_at && new Date() > new Date(user.token_expires_at)) {
+    store.removeItem("oasisCurrentUser")
+    sessionStorage.setItem("oasisSessionExpired", "1")
+    return null
   }
-  return null
+  return user
 }
 
-function setCurrentUser(user) {
-  localStorage.setItem("oasisCurrentUser", JSON.stringify(user))
+function getCurrentUser() {
+  return readUserFrom(localStorage) ?? readUserFrom(sessionStorage)
+}
+
+// remember 不傳的話，維持使用者資料現在住的位置更新（例如改完個人資料回寫）；
+// 只有登入頁會明確傳 true / false。都沒登入過則預設 localStorage（與註冊行為一致）。
+function setCurrentUser(user, remember) {
+  if (remember === undefined) {
+    remember = !sessionStorage.getItem("oasisCurrentUser")
+  }
+  const target = remember ? localStorage : sessionStorage
+  const other  = remember ? sessionStorage : localStorage
+  target.setItem("oasisCurrentUser", JSON.stringify(user))
+  other.removeItem("oasisCurrentUser")
 }
 
 function clearCurrentUser() {
   localStorage.removeItem("oasisCurrentUser")
+  sessionStorage.removeItem("oasisCurrentUser")
 }
 
 // XSS 防護
@@ -1710,7 +1717,7 @@ function initLoginPage() {
   refreshBtn?.addEventListener("click", () => fetchChallenge(questionEl, idInput))
 
   if (getQueryParam("expired")) {
-    error.textContent = "登入已過期（30 天），請重新登入"
+    error.textContent = "登入已過期，請重新登入"
     error.classList.remove("hidden")
   }
 
@@ -1718,6 +1725,7 @@ function initLoginPage() {
     e.preventDefault()
     error.classList.add("hidden")
     setButtonLoading(submitBtn, true)
+    const remember = document.querySelector("#login-remember")?.checked ?? true
     const response = await fetch("/api/auth/login", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1726,6 +1734,7 @@ function initLoginPage() {
         hp:             document.querySelector("#hp").value,
         captcha_id:     idInput.value,
         captcha_answer: document.querySelector("#captcha-answer").value,
+        remember,
       }),
     })
     const result = await response.json()
@@ -1736,7 +1745,7 @@ function initLoginPage() {
       fetchChallenge(questionEl, idInput)   // 失敗後重取驗證碼
       return
     }
-    setCurrentUser(result.user)
+    setCurrentUser(result.user, remember)
     const nextPage = getQueryParam("next")
     const safePage = nextPage && nextPage.startsWith("/") ? nextPage : "/user"
     window.location.href = result.user.role === "admin" ? "/dashboard" : safePage
