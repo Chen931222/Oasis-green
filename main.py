@@ -826,18 +826,33 @@ def init_db():
         if "plan"               not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'")
         if "plan_expires_at"    not in _uc: cursor.execute("ALTER TABLE users ADD COLUMN plan_expires_at TEXT")
 
-    # ── 確保有 admin 帳號，密碼若是舊明文格式則自動升級 ─────────────────────────
+    # ── 確保有 admin 帳號 ─────────────────────────────────────────────────────
+    # 密碼不寫死在程式碼：來源是 ADMIN_PASSWORD 環境變數，沒設定就產生隨機密碼
+    # 印在啟動 log。舊部署遺留的預設密碼 admin123 會在啟動時自動作廢。
     cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'admin'")
     if cursor.fetchone()[0] == 0:
+        pw = os.environ.get("ADMIN_PASSWORD")
+        if not pw:
+            pw = secrets.token_urlsafe(12)
+            logging.warning("已建立 admin@oasis.com，隨機密碼：%s（建議改設 ADMIN_PASSWORD 環境變數）", pw)
         cursor.execute(
             "INSERT INTO users (name, email, password, role, email_verified) VALUES (?, ?, ?, ?, ?)",
-            ("Oasis 管理員", "admin@oasis.com", hash_password("admin123"), "admin", 1),
+            ("Oasis 管理員", "admin@oasis.com", hash_password(pw), "admin", 1),
         )
     else:
         cursor.execute("SELECT id, password FROM users WHERE role = 'admin'")
         for uid, pwd in cursor.fetchall():
-            if ":" not in pwd:
-                cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hash_password(pwd), uid))
+            if ":" not in pwd:  # 舊明文格式先升級成雜湊
+                pwd = hash_password(pwd)
+                cursor.execute("UPDATE users SET password = ? WHERE id = ?", (pwd, uid))
+            if verify_password("admin123", pwd) and os.environ.get("ADMIN_PASSWORD") != "admin123":
+                pw = os.environ.get("ADMIN_PASSWORD")
+                if pw:
+                    logging.warning("admin 預設密碼 admin123 已作廢，改用 ADMIN_PASSWORD 環境變數的值")
+                else:
+                    pw = secrets.token_urlsafe(12)
+                    logging.warning("admin 預設密碼 admin123 已作廢，新隨機密碼：%s（建議改設 ADMIN_PASSWORD 環境變數）", pw)
+                cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hash_password(pw), uid))
 
     # ── 預設空間（首次安裝才插入）────────────────────────────────────────────
     cursor.execute("SELECT COUNT(*) FROM spaces")
@@ -848,11 +863,11 @@ def init_db():
             " capacity, rating, image, equipment, description, status, lat, lng)"
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                ("Tiny Desk Studio", "美國", "華盛頓特區", "美國華盛頓特區",
-                 "工作室", 600, 18, 4.9, "/static/images/coldplay.png",
+                ("巷口錄音間", "台中市", "西區", "臺中市西區向上路一段",
+                 "工作室", 600, 18, 4.9, "/static/images/studio.png",
                  "音響,麥克風,燈光,桌椅",
                  "溫暖的音樂表演與錄影空間，適合小型演出、Podcast 錄製、訪談拍攝與直播活動。",
-                 "已確認", 38.8951, -77.0364),
+                 "已確認", 24.1439, 120.6645),
                 ("小角 . 手捻咖啡", "台中市", "南屯區", "臺中市南屯區惠中里大墩十街360號",
                  "咖啡廳", 320, 24, 4.7, "/static/images/coffee.png",
                  "咖啡吧,桌椅,Wi-Fi,插座",
@@ -873,10 +888,25 @@ def init_db():
             "INSERT INTO bookings (space_id, space_name, date, start_time, end_time, purpose, status)"
             " VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
-                (1, "Tiny Desk Studio",  "2026-05-20", "10:00", "14:00", "音樂錄影拍攝", "待確認"),
+                (1, "巷口錄音間",        "2026-05-20", "10:00", "14:00", "音樂錄影拍攝", "待確認"),
                 (2, "小角 . 手捻咖啡",   "2026-05-28", "19:00", "21:00", "咖啡讀書會",   "已確認"),
                 (3, "停車場預約",         "2026-04-12", "09:00", "17:00", "活動車輛停放", "已完成"),
             ],
+        )
+
+    # ── 舊示範資料修正（可重複執行）：換掉早期的版權素材與虛構地點 ─────────────
+    cursor.execute("SELECT id FROM spaces WHERE name = 'Tiny Desk Studio'")
+    _old = cursor.fetchone()
+    if _old:
+        cursor.execute(
+            "UPDATE spaces SET name = ?, city = ?, district = ?, address = ?,"
+            " image = ?, lat = ?, lng = ? WHERE id = ?",
+            ("巷口錄音間", "台中市", "西區", "臺中市西區向上路一段",
+             "/static/images/studio.png", 24.1439, 120.6645, _old[0]),
+        )
+        cursor.execute(
+            "UPDATE bookings SET space_name = ? WHERE space_name = ?",
+            ("巷口錄音間", "Tiny Desk Studio"),
         )
 
     # ── 索引（對效能至關重要；IF NOT EXISTS 確保重複執行安全）───────────────────

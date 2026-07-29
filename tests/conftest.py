@@ -18,6 +18,7 @@ os.environ["OASIS_EMAIL_PASS"]  = ""
 os.environ["SENTRY_DSN"]        = ""                 # 關閉 Sentry
 os.environ["DISABLE_CAPTCHA"]    = "1"               # 跳過驗證碼（測試環境不需填）
 os.environ["DISABLE_PLAN_LIMIT"] = "1"               # 跳過訂閱方案限制（測試環境）
+os.environ["ADMIN_PASSWORD"]     = "admin123"        # 測試 DB 專用的 admin 密碼（正式環境自行設定）
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
