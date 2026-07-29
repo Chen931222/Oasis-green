@@ -37,7 +37,7 @@
 - **連線池**：psycopg2 `ThreadedConnectionPool`，內建殭屍連線（zombie connection）偵測（見下方亮點）
 - **前端**：原生 HTML / CSS / JavaScript 多頁式（`www/`），由 FastAPI 提供靜態頁面
 - **部署**：Render（gunicorn + `uvicorn.workers.UvicornWorker`）；另附 `Dockerfile`、`docker-compose.yml` + `nginx.conf` 可自架
-- **CI**：GitHub Actions 跑 pytest（56 個測試，於 SQLite 上執行）
+- **CI**：GitHub Actions 跑 pytest（57 個測試，於 SQLite 上執行）
 - **維運**：Sentry 錯誤追蹤（選用）、GitHub Actions 排程 keep-alive 定時喚醒服務
 - **資料庫遷移**：`migrations/*.sql`（速率限制、challenge、座標、共租等）
 
