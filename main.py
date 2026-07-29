@@ -840,19 +840,21 @@ def init_db():
             ("Oasis 管理員", "admin@oasis.com", hash_password(pw), "admin", 1),
         )
     else:
+        _admin_env = os.environ.get("ADMIN_PASSWORD")
         cursor.execute("SELECT id, password FROM users WHERE role = 'admin'")
         for uid, pwd in cursor.fetchall():
             if ":" not in pwd:  # 舊明文格式先升級成雜湊
                 pwd = hash_password(pwd)
                 cursor.execute("UPDATE users SET password = ? WHERE id = ?", (pwd, uid))
-            if verify_password("admin123", pwd) and os.environ.get("ADMIN_PASSWORD") != "admin123":
-                pw = os.environ.get("ADMIN_PASSWORD")
-                if pw:
-                    logging.warning("admin 預設密碼 admin123 已作廢，改用 ADMIN_PASSWORD 環境變數的值")
-                else:
-                    pw = secrets.token_urlsafe(12)
-                    logging.warning("admin 預設密碼 admin123 已作廢，新隨機密碼：%s（建議改設 ADMIN_PASSWORD 環境變數）", pw)
+            if _admin_env:
+                # 環境變數永遠說了算：改 ADMIN_PASSWORD 後重啟即改密碼（忘記也救得回來）
+                if not verify_password(_admin_env, pwd):
+                    cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hash_password(_admin_env), uid))
+                    logging.warning("admin 密碼已同步為 ADMIN_PASSWORD 環境變數的值")
+            elif verify_password("admin123", pwd):
+                pw = secrets.token_urlsafe(12)
                 cursor.execute("UPDATE users SET password = ? WHERE id = ?", (hash_password(pw), uid))
+                logging.warning("admin 預設密碼 admin123 已作廢，新隨機密碼：%s（建議改設 ADMIN_PASSWORD 環境變數）", pw)
 
     # ── 預設空間（首次安裝才插入）────────────────────────────────────────────
     cursor.execute("SELECT COUNT(*) FROM spaces")
