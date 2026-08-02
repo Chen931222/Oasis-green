@@ -38,7 +38,7 @@
 - **前端**：原生 HTML / CSS / JavaScript 多頁式（`www/`），由 FastAPI 提供靜態頁面
 - **部署**：Render（gunicorn + `uvicorn.workers.UvicornWorker`）；另附 `Dockerfile`、`docker-compose.yml` + `nginx.conf` 可自架
 - **CI**：GitHub Actions 跑 pytest（57 個測試，於 SQLite 上執行）
-- **維運**：Sentry 錯誤追蹤（選用）、GitHub Actions 排程 keep-alive 定時喚醒服務
+- **維運**：Sentry 錯誤追蹤（選用）
 - **資料庫遷移**：`migrations/*.sql`（速率限制、challenge、座標、共租等）
 
 ## 技術亮點：Serverless 資料庫的殭屍連線修復
@@ -96,7 +96,7 @@ main.py                  FastAPI 應用主程式（路由、資料庫、寄信�
 www/                     前端靜態頁面（HTML / CSS / JS）
 tests/                   pytest 測試（auth / spaces / bookings）
 migrations/              SQL 資料庫遷移
-.github/workflows/       CI 測試與 keep-alive 排程
+.github/workflows/       CI 測試
 render.yaml              Render 部署設定
 Dockerfile / docker-compose.yml / nginx.conf   自架用
 ```
