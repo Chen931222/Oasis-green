@@ -1,0 +1,18 @@
+name: keepalive
+
+# 讓 Render 免費方案別睡著：定期喚醒 /api/health，避免訪客第一次開站要等約 30 秒冷啟。
+# 註：GitHub Actions 排程可能延遲數分鐘（免費方案常見）；且 repo 連續 60 天沒有提交時，
+#     排程會被 GitHub 自動停用，屆時進 Actions 頁重新啟用即可。
+on:
+  schedule:
+    - cron: "*/14 * * * *"   # 每 14 分鐘一次，壓在 Render 15 分鐘休眠門檻之內
+  workflow_dispatch:          # 也可手動觸發
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 https://oasis-green.onrender.com/api/health || echo "000")
+          echo "health check -> HTTP $code"
