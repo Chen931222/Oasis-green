@@ -896,6 +896,51 @@ def init_db():
             ],
         )
 
+    # ── 示範拼場（首次安裝、或拼場表為空時才插入）───────────────────────────
+    # 拼場是這個平台的核心，但空狀態頁只會顯示「目前沒有開放中的拼場活動」，
+    # 訪客看不出它長什麼樣。這裡放三筆日期永遠在未來的示範拼場，
+    # 由一個明確標示的示範帳號發起（隨機密碼、不對外公布，只用來當發起人）。
+    cursor.execute("SELECT COUNT(*) FROM co_rentals")
+    if cursor.fetchone()[0] == 0:
+        _demo_email = "demo-organizer@oasis-demo.invalid"
+        cursor.execute("SELECT id FROM users WHERE email = ?", (_demo_email,))
+        if not cursor.fetchone():
+            cursor.execute(
+                "INSERT INTO users (name, email, password, role, email_verified) VALUES (?, ?, ?, ?, ?)",
+                ("示範發起人", _demo_email, hash_password(secrets.token_urlsafe(24)), "user", 1),
+            )
+        _space_ids = {}
+        for _n in ("巷口錄音間", "咖啡廳", "停車場預約"):
+            cursor.execute("SELECT id FROM spaces WHERE name = ? ORDER BY id LIMIT 1", (_n,))
+            _r = cursor.fetchone()
+            if _r:
+                _space_ids[_n] = _r[0]
+        _today = datetime.now().date()
+        _demo_rentals = [
+            # (空間, 幾天後, 開始, 結束, 名額, 已加入, 每人費用, 目的)
+            ("巷口錄音間", 3, "19:00", "22:00", 4, 2, 450, "樂團週五練團，缺鼓手與貝斯，分攤三小時場租"),
+            ("咖啡廳",     5, "14:00", "17:00", 6, 3, 200, "讀書會包場，週日下午三小時，有投影機"),
+            ("巷口錄音間", 9, "10:00", "13:00", 3, 1, 600, "Podcast 錄音，兩個人一起分攤麥克風與空間"),
+        ]
+        for _name, _days, _st, _et, _total, _filled, _price, _purpose in _demo_rentals:
+            if _name not in _space_ids:
+                continue
+            _date = (_today + timedelta(days=_days)).isoformat()
+            cursor.execute(
+                """
+                INSERT INTO co_rentals (space_id, date, start_time, end_time,
+                    total_slots, filled_slots, price_per_slot, purpose, organizer_email, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')
+                """,
+                (_space_ids[_name], _date, _st, _et, _total, _filled, _price, _purpose, _demo_email),
+            )
+            _rid = cursor.lastrowid
+            cursor.execute(
+                "INSERT INTO co_rental_members (co_rental_id, user_email) VALUES (?, ?)",
+                (_rid, _demo_email),
+            )
+        logging.info("已插入 %d 筆示範拼場", len(_demo_rentals))
+
     # ── 舊示範資料修正（可重複執行）：換掉早期的版權素材與虛構地點 ─────────────
     cursor.execute("SELECT id FROM spaces WHERE name = 'Tiny Desk Studio'")
     _old = cursor.fetchone()

@@ -29,3 +29,6 @@ logs/
 
 # Claude Code 本機工作目錄
 .claude/
+
+# 競賽投稿素材（不進 repo）
+_contest/
